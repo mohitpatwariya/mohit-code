@@ -1,0 +1,184 @@
+-- 1. List all students who have taken exactly 60 total credits.
+SELECT ID, name FROM student WHERE tot_cred = 60;
+
+-- 2. Find the names of all courses offered by the "Electrical Engineering" department.
+SELECT title FROM course WHERE dept_name = 'Electrical Engineering';
+
+-- 3. Retrieve the names of all instructors who earn less than ₹40,000.
+SELECT name FROM instructor WHERE salary < 40000;
+
+-- 4. List all classrooms located in the "Main" building.
+SELECT * FROM classroom WHERE building = 'Main';
+
+-- 5. Find the total number of courses offered in the "Fall" semester.
+SELECT COUNT(DISTINCT course_id) FROM section WHERE semester = 'Fall';
+
+-- 6. List all students who have taken exactly 90 total credits.
+SELECT ID, name FROM student WHERE tot_cred = 90;
+
+-- 7. Find the names of all courses offered by the "Mechanical Engineering" department.
+SELECT title FROM course WHERE dept_name = 'Mechanical Engineering';
+
+-- 8. Retrieve the names of all instructors who earn exactly ₹75,000.
+SELECT name FROM instructor WHERE salary = 75000;
+
+-- 9. List all classrooms located in the "Lambert" building.
+SELECT * FROM classroom WHERE building = 'Lambert';
+
+-- 10. Find the total number of courses offered in the "Spring" semester.
+SELECT COUNT(DISTINCT course_id) FROM section WHERE semester = 'Spring';
+
+-- 11. List all students who have taken courses with a grade of "B" in the "Spring" semester of 2023.
+SELECT DISTINCT s.ID, s.name FROM student s 
+JOIN takes t ON s.ID = t.ID 
+WHERE t.grade = 'B' AND t.semester = 'Spring' AND t.year = 2023;
+
+-- 12. Retrieve the names of instructors who have taught in the "Summer" semester of 2022.
+SELECT DISTINCT i.name FROM instructor i
+JOIN teaches t ON i.ID = t.ID
+WHERE t.semester = 'Summer' AND t.year = 2022;
+
+-- 13. Find the average number of credits offered by each department.
+SELECT dept_name, AVG(credits) AS avg_credits FROM course GROUP BY dept_name;
+
+-- 14. List all courses that have exactly 1 credit.
+SELECT title FROM course WHERE credits = 1;
+
+-- 15. Retrieve the names of students who have taken courses in the "Painter" building.
+SELECT DISTINCT s.ID, s.name FROM student s 
+JOIN takes t ON s.ID = t.ID 
+JOIN section sec ON t.course_id = sec.course_id AND t.sec_id = sec.sec_id 
+WHERE sec.building = 'Painter';
+
+-- 16. Find the total number of students enrolled in each course.
+SELECT course_id, COUNT(DISTINCT ID) AS total_students FROM takes GROUP BY course_id;
+
+-- 17. List all sections that are held in rooms with a capacity of more than 100.
+SELECT * FROM section sec 
+JOIN classroom c ON sec.building = c.building AND sec.room_number = c.room_number 
+WHERE c.capacity > 100;
+
+-- 18. Retrieve the names of students who have taken courses with the highest number of credits in their department.
+SELECT s.ID, s.name FROM student s
+JOIN takes t ON s.ID = t.ID
+JOIN course c ON t.course_id = c.course_id
+WHERE c.credits = (SELECT MAX(credits) FROM course WHERE dept_name = c.dept_name);
+
+-- 19. Find the departments with the highest total budget.
+SELECT dept_name FROM department ORDER BY budget DESC LIMIT 1;
+
+-- 20. List all courses that have been taught by more than 2 instructors.
+SELECT course_id FROM teaches GROUP BY course_id HAVING COUNT(DISTINCT ID) > 2;
+
+-- 21. List all students who have taken courses with a grade of "C" in the "Winter" semester of 2023.
+SELECT DISTINCT s.ID, s.name FROM student s 
+JOIN takes t ON s.ID = t.ID 
+WHERE t.grade = 'C' AND t.semester = 'Winter' AND t.year = 2023;
+
+-- 22. Retrieve the names of instructors who have taught in the "Fall" semester of 2021.
+SELECT DISTINCT i.name FROM instructor i
+JOIN teaches t ON i.ID = t.ID
+WHERE t.semester = 'Fall' AND t.year = 2021;
+
+-- 23. Find the average number of sections taught per course.
+SELECT AVG(section_count) FROM (SELECT course_id, COUNT(*) AS section_count FROM section GROUP BY course_id) AS subquery;
+
+-- 24. List all courses that have exactly 2 credits.
+SELECT title FROM course WHERE credits = 2;
+
+-- 25. Retrieve the names of students who have taken courses in the "Taylor" building.
+SELECT DISTINCT s.ID, s.name FROM student s 
+JOIN takes t ON s.ID = t.ID 
+JOIN section sec ON t.course_id = sec.course_id AND t.sec_id = sec.sec_id 
+WHERE sec.building = 'Taylor';
+-- 26. Find the total number of courses taught by each instructor.
+SELECT ID, COUNT(DISTINCT course_id) AS total_courses FROM teaches GROUP BY ID;
+
+-- 27. List all sections that are held in rooms with a capacity of exactly 75.
+SELECT * FROM section sec 
+JOIN classroom c ON sec.building = c.building AND sec.room_number = c.room_number 
+WHERE c.capacity = 75;
+
+-- 28. Retrieve the names of students who have taken courses with the lowest number of credits in their department.
+SELECT s.ID, s.name FROM student s
+JOIN takes t ON s.ID = t.ID
+JOIN course c ON t.course_id = c.course_id
+WHERE c.credits = (SELECT MIN(credits) FROM course WHERE dept_name = c.dept_name);
+
+-- 29. Find the departments with the lowest total budget.
+SELECT dept_name FROM department ORDER BY budget ASC LIMIT 1;
+
+-- 30. List all courses that have been taught by exactly 3 instructors.
+SELECT course_id FROM teaches GROUP BY course_id HAVING COUNT(DISTINCT ID) = 3;
+
+-- 31. Find the students who have taken courses from at least 4 different departments.
+SELECT ID FROM takes t
+JOIN course c ON t.course_id = c.course_id
+GROUP BY t.ID HAVING COUNT(DISTINCT c.dept_name) >= 4;
+
+-- 32. Retrieve the names of instructors who have taught the same course in multiple years.
+SELECT DISTINCT i.name FROM instructor i
+JOIN teaches t ON i.ID = t.ID
+GROUP BY i.ID, t.course_id HAVING COUNT(DISTINCT t.year) > 1;
+
+-- 33. List all courses that are prerequisites for exactly 1 other course.
+SELECT course_id FROM prereq GROUP BY course_id HAVING COUNT(*) = 1;
+
+-- 34. Find the departments where the total student credits are greater than the department budget.
+SELECT d.dept_name FROM department d
+JOIN student s ON d.dept_name = s.dept_name
+GROUP BY d.dept_name HAVING SUM(s.tot_cred) > d.budget;
+
+-- 35. Retrieve the names of students who have taken courses with every time slot in multiple semesters.
+SELECT ID FROM takes GROUP BY ID, semester HAVING COUNT(DISTINCT time_slot_id) = (SELECT COUNT(*) FROM time_slot);
+
+-- 36. List all courses that have been taught in every building except two.
+SELECT course_id FROM section GROUP BY course_id HAVING COUNT(DISTINCT building) = (SELECT COUNT(DISTINCT building) FROM classroom) - 2;
+
+-- 37. Find the students who have taken the most number of courses in a single semester across all departments.
+SELECT ID FROM takes GROUP BY ID, semester, year ORDER BY COUNT(*) DESC LIMIT 1;
+
+-- 38. Retrieve the names of instructors who have taught courses in all available buildings.
+SELECT ID FROM teaches t JOIN section s ON t.course_id = s.course_id GROUP BY ID HAVING COUNT(DISTINCT building) = (SELECT COUNT(DISTINCT building) FROM classroom);
+
+-- 39. List all students who have taken courses with overlapping time slots in the same semester and year.
+SELECT DISTINCT t1.ID FROM takes t1 JOIN takes t2 ON t1.ID = t2.ID 
+JOIN section s1 ON t1.course_id = s1.course_id AND t1.sec_id = s1.sec_id
+JOIN section s2 ON t2.course_id = s2.course_id AND t2.sec_id = s2.sec_id
+WHERE t1.semester = t2.semester AND t1.year = t2.year AND s1.time_slot_id = s2.time_slot_id AND t1.course_id <> t2.course_id;
+
+-- 40. Find the courses that have the highest enrollment in a single semester.
+SELECT course_id FROM takes GROUP BY course_id, semester, year ORDER BY COUNT(*) DESC LIMIT 1;
+
+-- 41. Find the students who have taken courses from at least 5 different departments.
+SELECT ID FROM takes t JOIN course c ON t.course_id = c.course_id GROUP BY t.ID HAVING COUNT(DISTINCT c.dept_name) >= 5;
+
+-- 42. Retrieve the names of instructors who have taught the same course in multiple semesters and years.
+SELECT DISTINCT i.name FROM instructor i JOIN teaches t ON i.ID = t.ID GROUP BY i.ID, t.course_id HAVING COUNT(DISTINCT CONCAT(t.semester, t.year)) > 1;
+
+-- 43. List all courses that are prerequisites for exactly 4 other courses.
+SELECT course_id FROM prereq GROUP BY course_id HAVING COUNT(*) = 4;
+
+-- 44. Find the departments where the total student credits are less than half of the department budget.
+SELECT d.dept_name FROM department d JOIN student s ON d.dept_name = s.dept_name GROUP BY d.dept_name HAVING SUM(s.tot_cred) < d.budget / 2;
+
+-- 45. Retrieve the names of students who have taken courses with every time slot in multiple semesters and years.
+SELECT ID FROM takes GROUP BY ID, semester, year HAVING COUNT(DISTINCT time_slot_id) = (SELECT COUNT(*) FROM time_slot);
+
+-- 46. List all courses that have been taught in every building except three.
+SELECT course_id FROM section GROUP BY course_id HAVING COUNT(DISTINCT building) = (SELECT COUNT(DISTINCT building) FROM classroom) - 3;
+
+-- 47. Find the students who have taken the most number of courses in a single year across all departments.
+SELECT ID FROM takes GROUP BY ID, year ORDER BY COUNT(*) DESC LIMIT 1;
+
+-- 48. Retrieve the names of instructors who have taught courses in all available semesters and buildings.
+SELECT ID FROM teaches t JOIN section s ON t.course_id = s.course_id GROUP BY ID HAVING COUNT(DISTINCT semester) = (SELECT COUNT(DISTINCT semester) FROM section) AND COUNT(DISTINCT building) = (SELECT COUNT(DISTINCT building) FROM classroom);
+
+-- 49. List all students who have taken courses with overlapping time slots in different semesters and years.
+SELECT DISTINCT t1.ID FROM takes t1 JOIN takes t2 ON t1.ID = t2.ID 
+JOIN section s1 ON t1.course_id = s1.course_id AND t1.sec_id = s1.sec_id
+JOIN section s2 ON t2.course_id = s2.course_id AND t2.sec_id = s2.sec_id
+WHERE s1.time_slot_id = s2.time_slot_id AND (t1.semester <> t2.semester OR t1.year <> t2.year);
+
+-- 50. Find the courses that have the lowest enrollment in a single semester.
+SELECT course_id FROM takes GROUP BY course_id, semester, year ORDER BY COUNT(*) ASC LIMIT 1;
